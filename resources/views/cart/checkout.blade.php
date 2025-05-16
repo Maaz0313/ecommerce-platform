@@ -57,6 +57,26 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="same_as_shipping"
+                                    name="same_as_shipping" {{ old('same_as_shipping') == 'on' ? 'checked' : '' }} checked>
+                                <label class="form-check-label" for="same_as_shipping">
+                                    Billing address same as shipping address
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="billing_address_container" style="display: none;">
+                            <label for="billing_address" class="form-label">Billing Address</label>
+                            <textarea class="form-control @error('billing_address') is-invalid @enderror" id="billing_address"
+                                name="billing_address" rows="3">{{ old('billing_address') }}</textarea>
+                            @error('billing_address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="mb-3">
                             <label for="notes" class="form-label">Order Notes</label>
                             <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="2">{{ old('notes') }}</textarea>
@@ -80,13 +100,13 @@
                                     value="stripe"
                                     {{ old('payment_method', session('checkout_form_data.payment_method')) == 'stripe' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="payment_stripe">
-                                    Credit/Debit Card (Visa/Mastercard)
+                                    Credit/Debit Card (Visa/Mastercard/American Express/UnionPay)
                                 </label>
                             </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                            <button type="submit" id="checkout-button" class="btn btn-primary btn-lg">Place Order</button>
                             <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary">Back to Cart</a>
                         </div>
                     </form>
@@ -165,6 +185,46 @@
         $(document).ready(function() {
             // Restore form data from localStorage if available
             restoreFormData();
+
+            // Handle "Same as shipping" checkbox
+            $('#same_as_shipping').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#billing_address_container').slideUp();
+                    $('#billing_address').val($('#shipping_address').val());
+                } else {
+                    $('#billing_address_container').slideDown();
+                }
+            });
+
+            // Copy shipping address to billing address when shipping address changes (if checkbox is checked)
+            $('#shipping_address').on('input', function() {
+                if ($('#same_as_shipping').is(':checked')) {
+                    $('#billing_address').val($(this).val());
+                }
+            });
+
+            // Initialize billing address container based on checkbox state
+            if (!$('#same_as_shipping').is(':checked')) {
+                $('#billing_address_container').show();
+            }
+
+            // Update button text based on payment method
+            function updateButtonText() {
+                const paymentMethod = $('input[name="payment_method"]:checked').val();
+                if (paymentMethod === 'stripe') {
+                    $('#checkout-button').text('Proceed to Payment');
+                } else {
+                    $('#checkout-button').text('Place Order');
+                }
+            }
+
+            // Initialize button text
+            updateButtonText();
+
+            // Update button text when payment method changes
+            $('input[name="payment_method"]').on('change', function() {
+                updateButtonText();
+            });
 
             // Apply coupon with AJAX
             $('#apply-coupon-btn').on('click', function() {
@@ -278,6 +338,8 @@
                     customer_email: $('#customer_email').val(),
                     customer_phone: $('#customer_phone').val(),
                     shipping_address: $('#shipping_address').val(),
+                    billing_address: $('#billing_address').val(),
+                    same_as_shipping: $('#same_as_shipping').is(':checked'),
                     notes: $('#notes').val(),
                     payment_method: $('input[name="payment_method"]:checked').val()
                 };
@@ -310,6 +372,18 @@
                             $('#shipping_address').val(formData.shipping_address);
                         }
 
+                        if (!$('#billing_address').val() && formData.billing_address) {
+                            $('#billing_address').val(formData.billing_address);
+                        }
+
+                        if (formData.same_as_shipping !== undefined) {
+                            $('#same_as_shipping').prop('checked', formData.same_as_shipping);
+                            // Show/hide billing address based on checkbox
+                            if (!formData.same_as_shipping) {
+                                $('#billing_address_container').show();
+                            }
+                        }
+
                         if (!$('#notes').val() && formData.notes) {
                             $('#notes').val(formData.notes);
                         }
@@ -317,6 +391,8 @@
                         if (formData.payment_method) {
                             $(`input[name="payment_method"][value="${formData.payment_method}"]`).prop('checked',
                                 true);
+                            // Update button text based on payment method
+                            updateButtonText();
                         }
                     } catch (e) {
                         console.error('Error restoring form data:', e);

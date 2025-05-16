@@ -39,7 +39,7 @@ This e-commerce platform is built with Laravel and includes the following featur
 ### Payment Features
 
 -   Cash on Delivery (COD) payment option
--   Credit/Debit Card payments (Visa/Mastercard)
+-   Credit/Debit Card payments (Credit/Debit Card (Visa/Mastercard/American Express/UnionPay))
 -   Pakistani Rupee (₨) currency support
 -   Payment status tracking
 -   Secure payment processing

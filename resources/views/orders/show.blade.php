@@ -147,7 +147,7 @@
                             </div>
                         @endif
 
-                        @if ($order->payment_method == 'stripe' && $order->payment_status == 'pending')
+                        @if ($order->payment_method == 'stripe' && $order->payment_status == 'pending' && $order->status != 'cancelled')
                             <div class="mt-4">
                                 <div class="alert alert-info">
                                     <h6><i class="fas fa-info-circle me-2"></i>Payment Required</h6>
@@ -164,7 +164,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between mb-4">
                     <div>
                         <a href="{{ route('orders.history') }}" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Back to Order History

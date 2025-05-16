@@ -20,6 +20,8 @@ class OrderController extends Controller
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
             'shipping_address' => 'required|string',
+            'billing_address' => 'nullable|string',
+            'same_as_shipping' => 'nullable|string|in:on',
             'payment_method' => 'required|string|in:cod,stripe',
             'notes' => 'nullable|string',
         ]);
@@ -54,6 +56,11 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
+            // Determine billing address based on checkbox
+            $billingAddress = isset($validatedData['same_as_shipping']) && $validatedData['same_as_shipping'] === 'on'
+                ? $validatedData['shipping_address']
+                : ($validatedData['billing_address'] ?? $validatedData['shipping_address']);
+
             // Create the order
             $order = Order::create([
                 'user_id' => auth()->id(), // Will be null for guest checkout
@@ -65,6 +72,7 @@ class OrderController extends Controller
                 'customer_email' => $validatedData['customer_email'],
                 'customer_phone' => $validatedData['customer_phone'] ?? null,
                 'shipping_address' => $validatedData['shipping_address'],
+                'billing_address' => $billingAddress,
                 'total_amount' => $totalAmount,
                 'notes' => $validatedData['notes'] ?? null,
                 'status' => 'order_received',
