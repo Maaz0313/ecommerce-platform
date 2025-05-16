@@ -74,22 +74,46 @@
                                                 <td>{{ $order->id }}</td>
                                                 <td>{{ $order->created_at->format('M d, Y') }}</td>
                                                 <td>
-                                                    @if ($order->status == 'pending')
-                                                        <span class="badge bg-warning text-dark">Pending</span>
-                                                    @elseif($order->status == 'processing')
-                                                        <span class="badge bg-info">Processing</span>
-                                                    @elseif($order->status == 'completed')
-                                                        <span class="badge bg-success">Completed</span>
-                                                    @elseif($order->status == 'cancelled')
-                                                        <span class="badge bg-danger">Cancelled</span>
-                                                    @endif
+                                                    <span
+                                                        class="badge
+                                                        @if ($order->status == 'delivered') bg-success
+                                                        @elseif($order->status == 'shipped') bg-info
+                                                        @elseif($order->status == 'preparing_for_shipment') bg-primary
+                                                        @elseif($order->status == 'cancelled') bg-danger
+                                                        @else bg-warning text-dark @endif">
+                                                        @if ($order->status == 'order_received')
+                                                            Order Received
+                                                        @elseif ($order->status == 'preparing_for_shipment')
+                                                            Preparing for Shipment
+                                                        @else
+                                                            {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                                                        @endif
+                                                    </span>
                                                 </td>
-                                                <td>${{ number_format($order->total_amount, 2) }}</td>
+                                                <td>₨{{ number_format($order->total_amount, 2) }}</td>
                                                 <td>
                                                     <a href="{{ route('orders.show', $order->id) }}"
                                                         class="btn btn-sm btn-outline-primary">
                                                         View
                                                     </a>
+
+                                                    @php
+                                                        $cancellableStatuses = [
+                                                            'order_received',
+                                                            'preparing_for_shipment',
+                                                        ];
+                                                    @endphp
+
+                                                    @if (in_array($order->status, $cancellableStatuses))
+                                                        <form action="{{ route('orders.cancel', $order->id) }}"
+                                                            method="POST" class="d-inline ms-1">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                onclick="return confirm('Are you sure you want to cancel this order? This action cannot be undone.')">
+                                                                Cancel
+                                                            </button>
+                                                        </form>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach

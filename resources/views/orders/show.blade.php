@@ -165,9 +165,26 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('orders.history') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i> Back to Order History
-                    </a>
+                    <div>
+                        <a href="{{ route('orders.history') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Order History
+                        </a>
+
+                        @php
+                            $cancellableStatuses = ['order_received', 'preparing_for_shipment'];
+                        @endphp
+
+                        @if (in_array($order->status, $cancellableStatuses))
+                            <form action="{{ route('orders.cancel', $order->id) }}" method="POST" class="d-inline ms-2">
+                                @csrf
+                                <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('Are you sure you want to cancel this order? This action cannot be undone.')">
+                                    <i class="fas fa-times-circle me-2"></i> Cancel Order
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+
                     <a href="{{ route('products.index') }}" class="btn btn-primary">
                         <i class="fas fa-shopping-cart me-2"></i> Continue Shopping
                     </a>

@@ -38,6 +38,11 @@
                                 <i class="fas fa-exclamation-triangle me-1"></i> Low Stock Items
                             </a>
                         </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ route('admin.contact-messages.index') }}" class="btn btn-info w-100">
+                                <i class="fas fa-envelope me-1"></i> Contact Messages
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -178,6 +183,41 @@
                 </div>
                 <div class="card-footer text-center">
                     <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-outline-dark">View All Orders</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Contact Messages -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Contact Messages</h5>
+                    @if ($unreadContactCount > 0)
+                        <span class="badge bg-primary">{{ $unreadContactCount }} unread</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if ($recentContactMessages->count() > 0)
+                        <div class="list-group">
+                            @foreach ($recentContactMessages as $message)
+                                <a href="{{ route('admin.contact-messages.show', $message->id) }}"
+                                    class="list-group-item list-group-item-action {{ $message->is_read ? '' : 'list-group-item-primary' }}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ $message->name }}</h6>
+                                        <small>{{ $message->created_at->diffForHumans() }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ Str::limit($message->subject, 30) }}</p>
+                                    <small class="text-muted">{{ $message->email }}</small>
+                                </a>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted">No contact messages</p>
+                    @endif
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{{ route('admin.contact-messages.index') }}" class="btn btn-sm btn-outline-dark">View All
+                        Messages</a>
                 </div>
             </div>
         </div>

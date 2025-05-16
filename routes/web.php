@@ -98,5 +98,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders', [OrderController::class, 'adminIndex'])->name('orders.index');
         Route::get('/orders/{id}', [OrderController::class, 'adminShow'])->name('orders.show');
         Route::post('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+
+        // Admin contact message routes
+        Route::get('/contact-messages', [App\Http\Controllers\Admin\ContactMessageController::class, 'index'])->name('contact-messages.index');
+        Route::get('/contact-messages/{id}', [App\Http\Controllers\Admin\ContactMessageController::class, 'show'])->name('contact-messages.show');
+        Route::post('/contact-messages/{id}/mark-read', [App\Http\Controllers\Admin\ContactMessageController::class, 'markAsRead'])->name('contact-messages.mark-read');
+        Route::post('/contact-messages/{id}/mark-unread', [App\Http\Controllers\Admin\ContactMessageController::class, 'markAsUnread'])->name('contact-messages.mark-unread');
+        Route::delete('/contact-messages/{id}', [App\Http\Controllers\Admin\ContactMessageController::class, 'destroy'])->name('contact-messages.destroy');
     });
 });

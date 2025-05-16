@@ -16,8 +16,13 @@ This e-commerce platform is built with Laravel and includes the following featur
 -   Product browsing with category filtering
 -   Product details with image gallery
 -   Shopping cart with AJAX functionality (add, update, remove items without page reload)
+-   "Buy Now" feature for direct checkout from product pages
 -   User registration and authentication
+-   Checkout with authentication requirement
+-   Multiple payment methods (Cash on Delivery, Credit/Debit Card)
+-   Coupon code system for discounts
 -   Order history and tracking
+-   Order cancellation functionality
 -   Contact form
 
 ### Admin Features
@@ -26,15 +31,27 @@ This e-commerce platform is built with Laravel and includes the following featur
 -   Dashboard with sales analytics
 -   Product management with image upload and drag-and-drop reordering
 -   Category management
--   Order management and status updates
+-   Order management with Amazon-style status updates
+-   Coupon management (fixed amount and percentage discounts)
 -   User management
+-   Contact message management
+
+### Payment Features
+
+-   Cash on Delivery (COD) payment option
+-   Credit/Debit Card payments (Visa/Mastercard)
+-   Pakistani Rupee (₨) currency support
+-   Payment status tracking
+-   Secure payment processing
 
 ### Technical Features
 
 -   Responsive design with Bootstrap 5
--   AJAX cart operations
+-   AJAX cart operations for seamless user experience
 -   Image optimization and thumbnail generation
 -   Security measures to prevent unauthorized access
+-   User-specific order protection
+-   Form data preservation during checkout process
 
 ## About Laravel
 
@@ -73,6 +90,30 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 -   **[Redberry](https://redberry.international/laravel-development/)**
 -   **[Active Logic](https://activelogic.com)**
 
+## Order Management System
+
+The platform implements an Amazon-style order status system:
+
+-   **Order Received**: Initial status when an order is placed
+-   **Preparing for Shipment**: Order is being processed and prepared
+-   **Shipped**: Order has been shipped to the customer
+-   **Delivered**: Order has been successfully delivered
+-   **Cancelled**: Order has been cancelled by customer or admin
+
+Customers can cancel orders only when they are in "Order Received" or "Preparing for Shipment" status.
+
+## Coupon System
+
+The platform includes a flexible coupon system with the following features:
+
+-   **Discount Types**: Fixed amount (₨) or percentage (%) discounts
+-   **Usage Limits**: Set maximum number of times a coupon can be used
+-   **Minimum Order Amount**: Set minimum purchase requirement for coupon eligibility
+-   **Validity Period**: Set start and expiration dates for coupons
+-   **Coupon Status**: Enable/disable coupons as needed
+
+Coupons are applied at checkout and automatically validated before application.
+
 ## E-Commerce Platform Setup
 
 ### Installation
@@ -98,6 +139,31 @@ Alternatively, you can run the setup script to create or update the admin user:
 php setup_admin.php
 ```
 
+### Payment Configuration
+
+The platform supports multiple payment methods:
+
+#### Cash on Delivery
+
+-   Enabled by default, no additional configuration required
+
+#### Credit/Debit Card Payments
+
+To configure card payments:
+
+1. Copy the required environment variables from `stripe-env-example.txt` to your `.env` file
+2. Update with your payment gateway credentials:
+
+```
+# Payment Gateway API Keys
+STRIPE_KEY=pk_test_your_publishable_key
+STRIPE_SECRET=sk_test_your_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+STRIPE_WEBHOOK_TOLERANCE=300
+```
+
+For production, replace the test keys with live keys from your payment gateway provider.
+
 ### Security Features
 
 The platform includes the following security features:
@@ -105,7 +171,11 @@ The platform includes the following security features:
 -   Separate admin authentication system
 -   Admin users are prevented from using the public login page
 -   Regular users are prevented from accessing admin functionality
+-   Order information is protected - users can only see their own orders
+-   Authentication required for checkout and order management
+-   Secure payment processing with industry-standard practices
 -   CSRF protection for all forms
+-   Input validation and sanitization throughout the application
 
 ## Contributing
 

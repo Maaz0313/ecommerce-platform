@@ -139,14 +139,13 @@ class OrderController extends Controller
 
     /**
      * Display a list of the user's orders.
+     *
+     * Display the user's order history.
      */
-    public function index()
+    public function history()
     {
-        $orders = Order::where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('orders.index', compact('orders'));
+        $orders = auth()->user()->orders()->latest()->paginate(10);
+        return view('orders.history', compact('orders'));
     }
 
     /**
@@ -218,14 +217,7 @@ class OrderController extends Controller
         return redirect()->back()->with('success', $message);
     }
 
-    /**
-     * Display the user's order history.
-     */
-    public function history()
-    {
-        $orders = auth()->user()->orders()->latest()->paginate(10);
-        return view('orders.history', compact('orders'));
-    }
+
 
     /**
      * Cancel an order.

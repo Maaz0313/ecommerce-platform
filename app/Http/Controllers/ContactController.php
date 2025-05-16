@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -14,7 +15,7 @@ class ContactController extends Controller
     {
         return view('contact');
     }
-    
+
     /**
      * Process the contact form submission.
      */
@@ -27,12 +28,14 @@ class ContactController extends Controller
             'subject' => 'required|string|max:255',
             'message' => 'required|string',
         ]);
-        
-        // In a real application, you would send an email here
+
+        // Store the message in the database
+        ContactMessage::create($validated);
+
+        // In a real application, you would also send an email here
         // For example:
         // Mail::to('info@example.com')->send(new ContactFormMail($validated));
-        
-        // For now, we'll just redirect with a success message
+
         return redirect()->route('contact')->with('message_sent', true);
     }
 }
