@@ -1,0 +1,396 @@
+@extends('layouts.app')
+
+@section('title', 'Shopping Cart')
+
+@section('content')
+    <h1 class="mb-4">Shopping Cart</h1>
+
+    @php
+        $total = 0;
+    @endphp
+
+    @if (count($cartItems) > 0)
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($cartItems as $id => $item)
+                                @php
+                                    $subtotal = $item['price'] * $item['quantity'];
+                                    $total += $subtotal;
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (isset($item['image']) && $item['image'])
+                                                <img src="{{ asset('images/products/' . $item['image']) }}"
+                                                    alt="{{ $item['name'] }}" class="img-thumbnail me-3"
+                                                    style="width: 60px; height: 60px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-light d-flex align-items-center justify-content-center me-3"
+                                                    style="width: 60px; height: 60px;">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <h6 class="mb-0">{{ $item['name'] }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>₨{{ number_format($item['price'], 2) }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center quantity-control"
+                                            data-product-id="{{ $id }}">
+                                            <input type="number" class="form-control form-control-sm item-quantity"
+                                                value="{{ $item['quantity'] }}" min="1" style="width: 70px;">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-primary ms-2 update-quantity-btn">
+                                                <i class="fas fa-sync-alt"></i> Update
+                                            </button>
+                                            <div class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="item-subtotal">₨{{ number_format($subtotal, 2) }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-item-btn"
+                                            data-product-id="{{ $id }}">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end fw-bold">Total:</td>
+                                <td class="fw-bold cart-total">₨{{ number_format($total, 2) }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <button type="button" id="clear-cart-btn" class="btn btn-outline-danger">
+                    <i class="fas fa-times"></i> Clear Cart
+                </button>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{{ route('products.index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+                <a href="{{ route('cart.checkout') }}" class="btn btn-success">
+                    <i class="fas fa-credit-card"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    @else
+        <div class="alert alert-info">
+            <h4 class="alert-heading">Your cart is empty!</h4>
+            <p>Looks like you haven't added any products to your cart yet.</p>
+            <hr>
+            <a href="{{ route('products.index') }}" class="btn btn-primary">Browse Products</a>
+        </div>
+    @endif
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            // Update quantity with AJAX
+            $('.update-quantity-btn').on('click', function() {
+                const $container = $(this).closest('.quantity-control');
+                const productId = $container.data('product-id');
+                const quantity = $container.find('.item-quantity').val();
+                const $spinner = $container.find('.spinner-border');
+                const $button = $(this);
+                const $row = $container.closest('tr');
+
+                // Show spinner, hide button
+                $spinner.removeClass('d-none');
+                $button.addClass('d-none');
+
+                $.ajax({
+                    url: "{{ route('cart.update') }}",
+                    type: "POST",
+                    data: {
+                        product_id: productId,
+                        quantity: quantity,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Highlight the row briefly to indicate successful update
+                            $row.effect('highlight', {
+                                color: '#d4edda'
+                            }, 1000);
+
+                            // Update item subtotal with animation
+                            const $subtotal = $row.find('.item-subtotal');
+                            $subtotal.fadeOut(200, function() {
+                                $(this).text('₨' + response.itemSubtotal).fadeIn(200);
+                            });
+
+                            // Update cart total with animation
+                            const $total = $('.cart-total');
+                            $total.fadeOut(200, function() {
+                                $(this).text('₨' + response.cartTotal).fadeIn(200);
+                            });
+
+                            // Update cart badge in nav
+                            updateCartBadge(response.cartCount);
+
+                            // Show success toast
+                            showToast('Success', response.message, 'success');
+                        } else {
+                            // Show error toast
+                            showToast('Error', response.message, 'danger');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        showToast('Error',
+                            'An error occurred while updating the cart. Please try again or refresh the page.',
+                            'danger');
+
+                        // Hide spinner, show button
+                        $spinner.addClass('d-none');
+                        $button.removeClass('d-none');
+                    },
+                    complete: function() {
+                        // Hide spinner, show button
+                        $spinner.addClass('d-none');
+                        $button.removeClass('d-none');
+                    }
+                });
+            });
+
+            // Remove item with AJAX
+            $('.remove-item-btn').on('click', function() {
+                const $button = $(this);
+                const productId = $button.data('product-id');
+                const $row = $button.closest('tr');
+
+                // Add loading state
+                $button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Removing...'
+                );
+                $button.prop('disabled', true);
+
+                console.log('Sending AJAX request to remove product ID:', productId);
+                $.ajax({
+                    url: "{{ route('cart.remove') }}",
+                    type: "POST",
+                    data: {
+                        product_id: productId,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Highlight the row before removing
+                            $row.effect('highlight', {
+                                color: '#f8d7da'
+                            }, 500, function() {
+                                // Animate row removal with slide up effect
+                                $row.effect('blind', {}, 500, function() {
+                                    $(this).remove();
+
+                                    // Update cart total with animation
+                                    const $total = $('.cart-total');
+                                    $total.fadeOut(200, function() {
+                                        $(this).text('₨' + response
+                                            .cartTotal).fadeIn(200);
+                                    });
+
+                                    // Update cart badge in nav
+                                    updateCartBadge(response.cartCount);
+
+                                    // Check if cart is empty
+                                    if (response.isEmpty) {
+                                        // Fade out the table and fade in the empty cart message
+                                        $('.card').fadeOut(500, function() {
+                                            const emptyCartHtml = `
+                                            <div class="alert alert-info">
+                                                <h4 class="alert-heading">Your cart is empty!</h4>
+                                                <p>Looks like you haven't added any products to your cart yet.</p>
+                                                <hr>
+                                                <a href="{{ route('products.index') }}" class="btn btn-primary">Browse Products</a>
+                                            </div>
+                                        `;
+                                            const $emptyCart = $(
+                                                emptyCartHtml);
+                                            $emptyCart.hide();
+                                            $('.card').replaceWith(
+                                                $emptyCart);
+                                            $emptyCart.fadeIn(500);
+
+                                            // Also remove the buttons row
+                                            $('.row:has(#clear-cart-btn)')
+                                                .fadeOut(500);
+                                        });
+                                    }
+                                });
+                            });
+
+                            // Show success toast
+                            showToast('Success', response.message, 'success');
+                        } else {
+                            // Show error toast
+                            showToast('Error', response.message, 'danger');
+
+                            // Reset button
+                            $button.html('<i class="fas fa-trash-alt"></i> Remove');
+                            $button.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        showToast('Error',
+                            'An error occurred while removing the item. Please try again or refresh the page.',
+                            'danger');
+
+                        // Reset button
+                        $button.html('<i class="fas fa-trash-alt"></i> Remove');
+                        $button.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Clear cart with AJAX
+            $('#clear-cart-btn').on('click', function() {
+                if (!confirm('Are you sure you want to clear your cart?')) {
+                    return;
+                }
+
+                const $button = $(this);
+
+                // Add loading state
+                $button.html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Clearing...'
+                );
+                $button.prop('disabled', true);
+
+                console.log('Sending AJAX request to clear cart');
+                $.ajax({
+                    url: "{{ route('cart.clear') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Reload the page to show empty cart
+                            window.location.reload();
+                        } else {
+                            // Show error toast
+                            showToast('Error', response.message, 'danger');
+
+                            // Reset button
+                            $button.html('<i class="fas fa-times"></i> Clear Cart');
+                            $button.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        showToast('Error',
+                            'An error occurred while clearing the cart. Please try again or refresh the page.',
+                            'danger');
+
+                        // Reset button
+                        $button.html('<i class="fas fa-times"></i> Clear Cart');
+                        $button.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Helper function to update cart badge
+            function updateCartBadge(count) {
+                const $badge = $('#cart-badge');
+
+                if (count > 0) {
+                    $badge.text(count);
+                    $badge.removeClass('d-none');
+                } else {
+                    $badge.addClass('d-none');
+                }
+            }
+
+            // Helper function to show toast messages
+            function showToast(title, message, type) {
+                // Create toast container if it doesn't exist
+                if ($('#toast-container').length === 0) {
+                    $('body').append(
+                        '<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>'
+                    );
+                }
+
+                // Generate a unique ID for this toast
+                const toastId = 'toast-' + Date.now();
+
+                const toastHtml = `
+                    <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <strong>${title}:</strong> ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `;
+
+                // Add toast to container
+                $('#toast-container').append(toastHtml);
+
+                // Get the toast element
+                const $toast = $('#' + toastId);
+
+                try {
+                    // Initialize Bootstrap toast
+                    const toast = new bootstrap.Toast($toast[0], {
+                        autohide: true,
+                        delay: 3000
+                    });
+
+                    // Show the toast
+                    toast.show();
+
+                    // Remove toast from DOM after it's hidden
+                    $toast.on('hidden.bs.toast', function() {
+                        $(this).remove();
+                    });
+                } catch (error) {
+                    console.error('Error showing toast:', error);
+                    // Fallback alert if toast fails
+                    alert(`${title}: ${message}`);
+                    $toast.remove();
+                }
+            }
+        });
+    </script>
+@endsection

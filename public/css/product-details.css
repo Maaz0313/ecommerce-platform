@@ -1,0 +1,330 @@
+/* Modern Product Details Page Styles */
+
+/* Product card styling for clickable cards */
+.product-card {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    outline: none; /* Remove default outline, we'll add our own */
+}
+
+/* Card hover and focus effects for accessibility */
+.product-card:hover,
+.product-card:focus {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Add to cart button on product cards */
+.product-card .add-to-cart-btn {
+    position: relative;
+    z-index: 5;
+}
+
+.product-card .add-to-cart-form {
+    z-index: 5;
+}
+
+/* Focus state for keyboard navigation */
+.product-card:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Title transition effect */
+.product-card .card-title {
+    transition: color 0.2s ease;
+}
+
+.product-card:hover .card-title,
+.product-card:focus .card-title {
+    color: var(--bs-primary);
+}
+
+/* Enhanced visual cue for clickability */
+.product-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--bs-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover::after,
+.product-card:focus::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* External link icon styling */
+.product-card .position-absolute.top-0.end-0 {
+    opacity: 0.7;
+    transform: scale(0.9);
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .position-absolute.top-0.end-0,
+.product-card:focus .position-absolute.top-0.end-0 {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Style for buttons and forms inside cards with stretched-link */
+.product-card .btn,
+.product-card form,
+.product-card .product-overlay a {
+    position: relative;
+    z-index: 5; /* Make buttons and forms clickable above the stretched-link */
+}
+
+/* Card hover animation */
+.product-card img {
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.03);
+}
+
+/* Ripple effect for card clicks */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(var(--bs-primary-rgb), 0.2);
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+    margin-left: -50px;
+    animation: ripple-animation 0.8s ease-out;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes ripple-animation {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+/* Custom Add to Cart button with even padding */
+.custom-cart-btn {
+    padding: 0 1.5rem !important; /* Horizontal padding only */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    height: 3.5rem; /* Fixed height for consistency */
+    line-height: 1; /* Reset line height */
+}
+
+.custom-cart-btn:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Fix FontAwesome icon alignment */
+.custom-cart-btn i {
+    font-size: 1rem;
+    line-height: 1;
+    display: block; /* Ensure proper rendering */
+    position: relative;
+    top: 0; /* Adjust if needed after testing */
+}
+
+/* Adjust the spacing between icon and text */
+.custom-cart-btn i.me-2 {
+    margin-right: 0.7rem !important;
+}
+
+/* Ensure proper alignment of text and icon */
+.custom-cart-btn span.d-flex {
+    height: 100%;
+    align-items: center;
+}
+
+/* Style the text portion to ensure consistent rendering */
+.custom-cart-btn span span {
+    display: inline-block;
+    line-height: 1.2;
+    position: relative;
+    top: 0.5px; /* Fine-tune vertical alignment */
+}
+
+/* Image overlay effect */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.02),
+        rgba(0, 0, 0, 0.1)
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-wrapper:hover .image-overlay {
+    opacity: 1;
+}
+
+/* Main product image enhancements */
+/* Disabled zoom effect to fix issues */
+.main-product-image:hover {
+    transform: none;
+}
+
+/* Thumbnails styling enhancements */
+.thumbnail-container {
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail-container:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+}
+
+.thumbnail-container:hover img {
+    transform: scale(1.1);
+}
+
+.thumbnail-active {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Product title gradient */
+.product-title-gradient {
+    background: linear-gradient(45deg, var(--bs-primary), #3a8bcd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+/* Badge hover effect */
+.badge-hover {
+    transition: all 0.3s ease;
+}
+
+.badge-hover:hover {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+}
+
+/* Price container styling */
+.price-container {
+    background: linear-gradient(
+        to right,
+        rgba(var(--bs-primary-rgb), 0.1),
+        rgba(var(--bs-primary-rgb), 0.05)
+    );
+    border-left: 4px solid var(--bs-primary);
+}
+
+/* Stock status container */
+.stock-container {
+    background-color: rgba(var(--bs-success-rgb), 0.1);
+    border-left: 4px solid var(--bs-success);
+}
+
+.stock-badge {
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+/* Product description styling */
+.product-description {
+    background-color: #fcfcfc;
+    border-color: #eaeaea !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Cart form container */
+.cart-form-container {
+    background-color: #f8f9fa;
+    border: 1px solid #eaeaea;
+    transition: all 0.3s ease;
+}
+
+.cart-form-container:hover {
+    background-color: #f0f8ff;
+    border-color: rgba(var(--bs-primary-rgb), 0.3);
+}
+
+/* Add to cart button */
+.btn-add-to-cart {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+.btn-add-to-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(var(--bs-primary-rgb), 0.4);
+}
+
+/* View cart button */
+.btn-view-cart {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(var(--bs-success-rgb), 0.3);
+}
+
+.btn-view-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(var(--bs-success-rgb), 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .image-wrapper {
+        height: 300px;
+    }
+
+    .thumbnail-container {
+        width: 60px;
+        height: 60px;
+    }
+    .no-image-placeholder {
+        height: 300px;
+    }
+}
+
+/* Footer spacing fixes */
+.footer {
+    margin-top: 0 !important;
+}
+
+/* Product details page specific fixes */
+.product-detail-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Last elements inside sections shouldn't have margins */
+section:last-child,
+.row:last-child,
+div:last-child > *:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}

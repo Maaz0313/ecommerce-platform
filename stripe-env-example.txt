@@ -1,0 +1,15 @@
+# Add these lines to your .env file
+
+# Stripe API Keys
+STRIPE_KEY=pk_test_your_publishable_key
+STRIPE_SECRET=sk_test_your_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+STRIPE_WEBHOOK_TOLERANCE=300
+
+# What You'll Miss Without Webhooks
+    Without webhooks, you'll miss:
+
+    - Asynchronous payment status updates
+    - Handling payment disputes or refunds
+    - Some edge cases like delayed payment confirmations
+

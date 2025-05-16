@@ -1,0 +1,47 @@
+/* Cart buttons styling - enhanced version */
+.add-to-cart-btn {
+    position: relative;
+    z-index: 10 !important; /* Ensure button is clickable above stretched-link */
+    transition: all 0.2s ease;
+}
+
+.add-to-cart-btn:hover,
+.add-to-cart-btn:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-to-cart-form {
+    position: relative;
+    z-index: 10 !important; /* Ensure form is clickable above stretched-link */
+}
+
+/* Card actions container */
+.card-actions {
+    z-index: 10 !important;
+    position: relative;
+}
+
+/* Add extra styling to make it clear the buttons are interactive */
+.add-to-cart-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.add-to-cart-btn:hover::before {
+    opacity: 1;
+}
+
+/* Prevent stretched-link from interfering with the form */
+.product-card .stretched-link::after {
+    z-index: 1 !important; /* Lower z-index than the form */
+}
