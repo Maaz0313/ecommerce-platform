@@ -121,6 +121,15 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.contact-messages.index') }}"
+                    class="sidebar-link {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }} d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-envelope me-2"></i> Contact Messages</span>
+                    @if (isset($unreadContactCount) && $unreadContactCount > 0)
+                        <span class="badge bg-primary rounded-pill">{{ $unreadContactCount }}</span>
+                    @endif
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('home') }}" class="sidebar-link">
                     <i class="fas fa-home me-2"></i> Back to Site
                 </a>

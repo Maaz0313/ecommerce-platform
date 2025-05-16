@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Contact Messages')
 
@@ -52,32 +52,34 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <div class="btn-group" role="group">
+                                            <div class="d-flex gap-2">
                                                 <a href="{{ route('admin.contact-messages.show', $message->id) }}"
                                                     class="btn btn-sm btn-info">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
-                                                
+
                                                 @if ($message->is_read)
-                                                    <form action="{{ route('admin.contact-messages.mark-unread', $message->id) }}"
-                                                        method="POST" class="d-inline">
+                                                    <form
+                                                        action="{{ route('admin.contact-messages.mark-unread', $message->id) }}"
+                                                        method="POST">
                                                         @csrf
                                                         <button type="submit" class="btn btn-sm btn-primary">
                                                             <i class="fas fa-envelope"></i> Mark Unread
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <form action="{{ route('admin.contact-messages.mark-read', $message->id) }}"
-                                                        method="POST" class="d-inline">
+                                                    <form
+                                                        action="{{ route('admin.contact-messages.mark-read', $message->id) }}"
+                                                        method="POST">
                                                         @csrf
                                                         <button type="submit" class="btn btn-sm btn-success">
                                                             <i class="fas fa-envelope-open"></i> Mark Read
                                                         </button>
                                                     </form>
                                                 @endif
-                                                
+
                                                 <form action="{{ route('admin.contact-messages.destroy', $message->id) }}"
-                                                    method="POST" class="d-inline"
+                                                    method="POST"
                                                     onsubmit="return confirm('Are you sure you want to delete this message?');">
                                                     @csrf
                                                     @method('DELETE')
@@ -92,7 +94,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="d-flex justify-content-center mt-4">
                         {{ $messages->links() }}
                     </div>

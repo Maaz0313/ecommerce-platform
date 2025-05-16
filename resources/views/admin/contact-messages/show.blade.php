@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'View Contact Message')
 
@@ -53,11 +53,11 @@
                     <a href="{{ route('admin.contact-messages.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Messages
                     </a>
-                    
+
                     <a href="mailto:{{ $message->email }}?subject=Re: {{ $message->subject }}" class="btn btn-primary">
                         <i class="fas fa-reply"></i> Reply
                     </a>
-                    
+
                     @if ($message->is_read)
                         <form action="{{ route('admin.contact-messages.mark-unread', $message->id) }}" method="POST">
                             @csrf
@@ -73,7 +73,7 @@
                             </button>
                         </form>
                     @endif
-                    
+
                     <form action="{{ route('admin.contact-messages.destroy', $message->id) }}" method="POST"
                         onsubmit="return confirm('Are you sure you want to delete this message?');">
                         @csrf
